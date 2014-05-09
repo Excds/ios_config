@@ -25,10 +25,11 @@ module IOSConfig
       @payloads       ||= []
     end
 
-    def signed(mdm_cert, mdm_intermediate_cert, mdm_private_key)
-      certificate   = OpenSSL::X509::Certificate.new(File.read(mdm_cert))
-      intermediate  = OpenSSL::X509::Certificate.new(File.read(mdm_intermediate_cert))
-      private_key   = OpenSSL::PKey::RSA.new(File.read(mdm_private_key))
+    # Returns a signed profile. Accepts paths as well as certs in variables when signing the profile
+    def signed(mdm_cert, mdm_intermediate_cert, mdm_private_key, is_file = true)
+      certificate   = OpenSSL::X509::Certificate.new(is_file ? File.read(mdm_cert) : mdm_cert)
+      intermediate  = OpenSSL::X509::Certificate.new(is_file ? File.read(mdm_intermediate_cert) : mdm_intermediate_cert)
+      private_key   = OpenSSL::PKey::RSA.new(is_file ? File.read(mdm_private_key) : mdm_private_key)
 
       signed_profile = OpenSSL::PKCS7.sign(certificate, private_key, unsigned, [intermediate], OpenSSL::PKCS7::BINARY)
       signed_profile.to_der

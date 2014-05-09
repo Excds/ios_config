@@ -5,6 +5,7 @@ module IOSConfig
       attr_accessor :type,           # pkcs12, caroot
                     :filename,       # Certificate filename
                     :cert_path,      # Certificate file path
+                    :cert_data,      # Certificate data when initialized with a variable
                     :description,    # Certificate description
                     :displayname,    #
                     :identifier,     # Certificate identifier
@@ -14,15 +15,18 @@ module IOSConfig
 
       def initialize(attributes = {})
         attributes ||= {}
-        [ :type,
+        required_attributes = [ :type,
           :filename,
-          :cert_path,
           :description,
           :displayname,
           :identifier,
-          :organization ].each do |attribute|
-          raise ArgumentError, "#{attribute} must be specified" unless attributes[attribute]
-        end
+          :organization ]
+
+          required_attributes << (attributes.has_key?(:cert_data) ? :cert_data : :cert_path)
+
+          required_attributes.each do |attribute|
+            raise ArgumentError, "#{attribute} must be specified" unless attributes[attribute]
+          end
 
         super(attributes)
       end
@@ -44,7 +48,8 @@ module IOSConfig
       end
 
       def read_cert(cert_path, password = nil)
-        data = File.read(cert_path)
+        # When initialized with a variable, ignore reading from file path.
+        data = defined?(@cert_data).nil? ? File.read(cert_path) : @cert_data
 
         # This will throw an exception if we have an incorrect password
         if !password.nil?
