@@ -4,7 +4,7 @@ module IOSConfig
   module Payload
     class Base
 
-      attr_accessor :uuid, :identifier, :description
+      attr_accessor :uuid, :identifier, :description, :display_name
 
       def initialize(attributes = {})
         attributes ||= {}
@@ -26,7 +26,8 @@ module IOSConfig
               'PayloadVersion'      => payload_version,
               'PayloadUUID'         => @uuid,
               'PayloadIdentifier'   => @identifier,
-              'PayloadDescription'  => @description }
+              'PayloadDescription'  => @description,
+              'PayloadDisplayName'  => @display_name }
 
         p.merge payload
       end
